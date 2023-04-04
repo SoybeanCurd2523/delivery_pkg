@@ -1,0 +1,26 @@
+apply_for_all_Kp : 0.5
+apply_for_all_Kd : 0.75
+
+hip_yaw: 
+  Kp: 170.0
+  Kd: 1.0
+
+hip_roll:
+  Kp: 300.0
+  Kd: 2.5
+
+hip_pitch:
+  Kp: 260.0
+  Kd: 1.7
+
+knee:
+  Kp: 190.0
+  Kd: 1.2
+
+ankle_pitch:
+  Kp: 180.0
+  Kd: 1.0
+
+ankle_roll:
+  Kp: 170.0
+  Kd: 0.4
