@@ -19,7 +19,7 @@
 
 enum
 {
-    WST = 0, LHY, LHR, LHP, LKN, LAP, LAR, RHY, RHR, RHP, RKN, RAP, RAR
+    WST = 0, LHY, LHR, LHP, LKN, LAP, LAR, RHY, RHR, RHP, RKN, RAP, RAR // joint_num
 };
 
 class YAML_CONFIG_READER
@@ -31,8 +31,11 @@ private:
   std::map<std::string, double> jointP_gain; //name:P gain   // Key : string형, value : double형
   std::map<std::string, double> jointD_gain; //name:D gain
 
+  std::map<std::string, double> path_x;
+  std::map<std::string, double> path_y;
+
   const char *file_path = JOINT_PD_GAIN_FILEPATH;
-  const std::string pkg_path = ros::package::getPath("delivery_pkg"); // 루트부터 패키지까지의 경로
+  const std::string pkg_path = ros::package::getPath("delivery_pkg"); // 루트부터 패키지까지의 경로 #include <ros/package.h> 해야 ros::package() 사용가능
 
 
 public:
@@ -44,7 +47,8 @@ public:
   double get_Kd(int joint_num);
 
 
-
+  double get_x();
+  double get_y();
 
 };
 

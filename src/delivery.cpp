@@ -2,20 +2,21 @@
 
 YAML_CONFIG_READER PD_gain_from_yaml; // 객체 선언
 
-double a = 0;
-double b = 0;
+double x = 0.0;
+double y = 0.0;
+
 void SetJointPIDgain()
 {
   
     PD_gain_from_yaml.getJoint_PD_gainFrom_yaml();
 
-    a = PD_gain_from_yaml.get_Kp(LHY);
+    x = PD_gain_from_yaml.get_x();
 
-    ROS_INFO("a : %lf", a);
+    ROS_INFO("x : %lf", x);
 
-    b = PD_gain_from_yaml.get_Kd(LHY);
+    y = PD_gain_from_yaml.get_y();
 
-    ROS_INFO("b : %lf", b);
+    ROS_INFO("y : %lf", y);
 }
 
 
@@ -28,21 +29,27 @@ int main(int argc, char **argv)
 
   SetJointPIDgain();
 
-  ros::Publisher chatter_pub = nh.advertise<std_msgs::Float64>("mytopic", 1000);
+  ros::Publisher x_pub = nh.advertise<std_msgs::Float64>("x_data", 1000); // 토픽 이름에 띄어쓰기 있으면 오류남
+  ros::Publisher y_pub = nh.advertise<std_msgs::Float64>("y_data", 1000);
 
   ros::Rate loop_rate(1);
 
   while (ros::ok())
   {
     std_msgs::Float64 msg;
-    msg.data = a;
-    ROS_INFO("I speak : [%lf]", msg.data);
-    chatter_pub.publish(msg); 
+    std_msgs::Float64 msg2;
+
+    msg.data = x;
+    msg2.data = y;
+    ROS_INFO("x : [%lf], y : [%lf]", msg.data, msg2.data);
+    
+    x_pub.publish(msg); 
+    y_pub.publish(msg2);
+
     ros::spinOnce();
 
     loop_rate.sleep();
   }
-
 
   return 0;
 }
