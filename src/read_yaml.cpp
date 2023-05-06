@@ -1,6 +1,9 @@
 #include "read_yaml.h"
 
-YAML_CONFIG_READER::YAML_CONFIG_READER(){
+// 생성자 소멸자 넣어야됨  
+// 안넣으면 delivery.cpp:(.text+0x8e1): undefined reference to `YAML_CONFIG_READER::YAML_CONFIG_READER()' 오류남
+
+YAML_CONFIG_READER::YAML_CONFIG_READER(){ 
 
 }
 
@@ -8,127 +11,37 @@ YAML_CONFIG_READER::~YAML_CONFIG_READER(){
 
 }
 
-void YAML_CONFIG_READER::getJoint_PD_gainFrom_yaml(){
+
+void YAML_CONFIG_READER::get_XY_Coordinates_From_yaml(){
   std::string local_path(this->file_path); // 상대 경로
   std::string path = this->pkg_path+local_path; // 루트부터 패키지까지 + 상대경로 = 루트부터 끝까지 경로 : 절대경로
   YAML::Node doc = YAML::LoadFile(path);
   std::cout<<path<<std::endl;
-
-//   double Pgain;
-//   double Dgain;
 
     double x_distance;
     double y_distance;
 
   try {
 
-        // apply_for_all_Kp = doc["apply_for_all_Kp"].as<double>();
-        // apply_for_all_Kd = doc["apply_for_all_Kd"].as<double>();
-
-        YAML::Node each_joint = doc["room_410"];
-        x_distance=each_joint["x"].as<double>();
-        y_distance=each_joint["y"].as<double>();
-     
-        path_x.insert({"room_410", x_distance});
-        path_y.insert({"room_410", y_distance});
-
-        // YAML::Node each_joint = doc["hip_yaw"];
-        // Pgain=each_joint["Kp"].as<double>();
-        // Dgain=each_joint["Kd"].as<double>();
-        // Pgain *= apply_for_all_Kp;
-        // Dgain *= apply_for_all_Kd;
-        // jointP_gain.insert({"hip_yaw", Pgain});
-        // jointD_gain.insert({"hip_yaw", Dgain});
-
-        // each_joint = doc["hip_roll"];
-        // Pgain=each_joint["Kp"].as<double>();
-        // Dgain=each_joint["Kd"].as<double>();
-        // Pgain *= apply_for_all_Kp;
-        // Dgain *= apply_for_all_Kd;        
-        // jointP_gain.insert({"hip_roll", Pgain});
-        // jointD_gain.insert({"hip_pitch", Dgain});
-
-        // each_joint = doc["knee"];
-        // Pgain=each_joint["Kp"].as<double>();
-        // Dgain=each_joint["Kd"].as<double>();
-        // Pgain *= apply_for_all_Kp;
-        // Dgain *= apply_for_all_Kd;
-        // jointP_gain.insert({"knee", Pgain});
-        // jointD_gain.insert({"knee", Dgain});
-
-        // each_joint = doc["ankle_pitch"];
-        // Pgain=each_joint["Kp"].as<double>();
-        // Dgain=each_joint["Kd"].as<double>();
-        // Pgain *= apply_for_all_Kp;
-        // Dgain *= apply_for_all_Kd;
-        // jointP_gain.insert({"ankle_pitch", Pgain});
-        // jointD_gain.insert({"ankle_pitch", Dgain});
-
-        // each_joint = doc["ankle_roll"];
-        // Pgain=each_joint["Kp"].as<double>();
-        // Dgain=each_joint["Kd"].as<double>();
-        // Pgain *= apply_for_all_Kp;
-        // Dgain *= apply_for_all_Kd;
-        // jointP_gain.insert({"ankle_roll", Pgain});
-        // jointD_gain.insert({"ankle_roll", Dgain});
-
-
+      YAML::Node room_number = doc["room_512"];
+      x_distance = room_number["x"].as<double>();
+      y_distance = room_number["y"].as<double>();
+    
+      path_x.insert({"room_512", x_distance});
+      path_y.insert({"room_512", y_distance});
 
   } catch (YAML::Exception &e) {
-        std::cerr << "path_x_y YAML Exception: " << e.what() << std::endl;
-        return;
+      std::cerr << "path_x_y YAML Exception: " << e.what() << std::endl;
+      return;
   }
   std::ofstream fclose(file_path);
   return;
 }
 
 double YAML_CONFIG_READER::get_x(){ 
-    return path_x["room_410"];
+    return path_x["room_512"];
 }
 
 double YAML_CONFIG_READER::get_y(){ 
-    return path_y["room_410"];
+    return path_y["room_512"];
 }
-
-
-// double YAML_CONFIG_READER::get_Kp(int joint_num){ //LHY, LHR, LHP, LKN, LAP, LAR, RHY, RHR, RHP, RKN, RAP, RAR
-//   if(joint_num == LHY or joint_num == RHY){
-//     return jointP_gain["hip_yaw"];
-//   }
-//   else if(joint_num == LHR or joint_num == RHR){
-//     return jointP_gain["hip_roll"];
-//   }
-//   else if(joint_num == LHP or joint_num == RHP){
-//     return jointP_gain["hip_yaw"];
-//   }
-//   else if(joint_num == LKN or joint_num == RKN){
-//     return jointP_gain["knee"];
-//   }
-//   else if(joint_num == LAP or joint_num == RAP){
-//     return jointP_gain["ankle_pitch"];
-//   }
-//   else if(joint_num == LAR or joint_num == RAR){
-//     return jointP_gain["ankle_roll"];
-//   }
-// }
-
-// double YAML_CONFIG_READER::get_Kd(int joint_num){
-//   if(joint_num == LHY or joint_num == RHY){
-//     return jointD_gain["hip_yaw"];
-//   }
-//   else if(joint_num == LHR or joint_num == RHR){
-//     return jointD_gain["hip_roll"];
-//   }
-//   else if(joint_num == LHP or joint_num == RHP){
-//     return jointD_gain["hip_yaw"];
-//   }
-//   else if(joint_num == LKN or joint_num == RKN){
-//     return jointD_gain["knee"];
-//   }
-//   else if(joint_num == LAP or joint_num == RAP){
-//     return jointD_gain["ankle_pitch"];
-//   }
-//   else if(joint_num == LAR or joint_num == RAR){
-//     return jointD_gain["ankle_roll"];
-//   }
-// }
