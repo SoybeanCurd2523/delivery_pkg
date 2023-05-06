@@ -75,8 +75,8 @@ int main(int argc, char **argv)
     ROS_INFO(" left_data: [%lf], right_data : [%lf]", msg.data, msg2.data);
     //  ROS_INFO("right_data : [%lf]", msg.data);
     
-    x_pub.publish(msg); 
-    y_pub.publish(msg2);
+    left_pub.publish(msg); 
+    right_pub.publish(msg2);
 
     ros::spinOnce();
 
