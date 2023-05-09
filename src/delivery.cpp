@@ -5,12 +5,13 @@
 #define deg2rad PI/180
 #define rad2deg 180/PI
 
-#define T 10
+#define T 100
 
 YAML_CONFIG_READER XY_Coordinates_from_yaml; // 객체 선언
 
 double left_rpm = 255; // ros topic data
 double right_rpm = 0.0;
+// double right_rpm = 255;
 
 double x=0;
 double y=0;
