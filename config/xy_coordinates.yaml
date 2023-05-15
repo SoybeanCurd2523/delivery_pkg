@@ -40,7 +40,12 @@ room_511:
 # 5층 엘레베이터 앞 방화셔터 턱을 중심점으로 ⇒ 512호 
 
 # x : +418cm, y : -718, x : 89, y : -380, x : -105, y : - 321, x : -10 
+# v=rw
+# rw*t = s (linear)
 
+# curve
+# left 255-40 1-cos // cycle T? -> experimental result
+# right 255
 # 이동 시나리오
 # 1. 직진 418cm
 # 2, 오른쪽으로 90도 회전

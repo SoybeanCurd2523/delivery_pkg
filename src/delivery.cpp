@@ -1,6 +1,6 @@
 #include "read_yaml.h"
 #include <time.h>
- 
+
 #define PI 3.141592
 #define deg2rad PI/180
 #define rad2deg 180/PI
@@ -49,6 +49,10 @@ double y=0;
 // void turn_left(){
 
 // }
+void tof_callback(const std_msgs::Float64::ConstPtr& msg3)
+{
+  ROS_INFO("tof_data : [%lf] cm", msg3->data);
+}
 
 int main(int argc, char **argv)
 { 
@@ -60,8 +64,9 @@ int main(int argc, char **argv)
 
   ros::Publisher left_pub = nh.advertise<std_msgs::Float64>("left_data", 1000); // 토픽 이름에 띄어쓰기 있으면 오류남
   ros::Publisher right_pub = nh.advertise<std_msgs::Float64>("right_data", 1000);
+  ros::Subscriber tof_sub = nh.subscribe("tof_data", 1000, tof_callback);
 
-  ros::Rate loop_rate(10); // 1Hz
+  ros::Rate loop_rate(10); // 10Hz
   int i=0;
   while (ros::ok())
   {
@@ -71,9 +76,11 @@ int main(int argc, char **argv)
     msg.data = left_rpm;
     
     right_rpm = 215 * ( ( 1+cos(i*deg2rad * 2*PI / T) ) /2) + 40;
+    // right_rpm = 80;
     msg2.data = right_rpm;
 
     ROS_INFO(" left_data: [%lf], right_data : [%lf]", msg.data, msg2.data);
+    
     //  ROS_INFO("right_data : [%lf]", msg.data);
     
     left_pub.publish(msg); 
