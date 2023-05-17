@@ -3,7 +3,7 @@
 #define PI 3.141592
 #define deg2rad PI/180
 #define rad2deg 180/PI
-#define T 10
+#define T 1000
 
 YAML_CONFIG_READER XY_Coordinates_from_yaml; // 객체 선언
 
@@ -34,7 +34,7 @@ int main(int argc, char **argv)
   std_msgs::Float64 msg; // left_pub msg
   std_msgs::Float64 msg2; // right_pub msg
 
-  ros::Rate loop_rate(10); // 10Hz
+  ros::Rate loop_rate(100); // 10Hz
 
   while (ros::ok())
   {
@@ -59,8 +59,36 @@ int main(int argc, char **argv)
       
       case turn_left:
       {
-        for(double i=0 ;  i<=T; i++){
-          left_rpm = 215 * ( ( 1+cos(i*deg2rad * 2*PI / T) ) /2) + 40;
+        for(double i=0 ;  i<T/2; i+=0.2){
+          left_rpm = 185 * ( ( 1+cos(i* 2*PI / T) ) /2) + 70;
+          right_rpm = 255;
+          
+          ROS_INFO("turn_left");
+          ROS_INFO("left_rpm : %lf, right_rpm : %lf", left_rpm, right_rpm);
+
+          msg.data = left_rpm;
+          msg2.data = right_rpm;
+          left_pub.publish(msg); 
+          right_pub.publish(msg2);
+          loop_rate.sleep();
+
+        }
+        for(double i=T/2 ;  i<3*T/2; i+=0.2){
+          left_rpm = 70;
+          right_rpm = 255;
+          
+          ROS_INFO("turn_left");
+          ROS_INFO("left_rpm : %lf, right_rpm : %lf", left_rpm, right_rpm);
+
+          msg.data = left_rpm;
+          msg2.data = right_rpm;
+          left_pub.publish(msg); 
+          right_pub.publish(msg2);
+          loop_rate.sleep();
+
+        }
+        for(double i=3*T/2 ;  i<=2*T; i+=0.2){
+          left_rpm = 185 * ( ( 1+cos(i* 2*PI / T) ) /2) + 70;
           right_rpm = 255;
           
           ROS_INFO("turn_left");
@@ -81,7 +109,7 @@ int main(int argc, char **argv)
       {
         for(double j=0 ;  j<=T ; j++){
           left_rpm = 255;
-          right_rpm = 215 * ( ( 1+cos(j*deg2rad * 2*PI / T) ) /2) + 40;
+          right_rpm = 215 * ( ( 1+cos(j * 2*PI / T) ) /2) + 40;
           
           ROS_INFO("turn_right");
           ROS_INFO("left_rpm : %lf, right_rpm : %lf", left_rpm, right_rpm);
