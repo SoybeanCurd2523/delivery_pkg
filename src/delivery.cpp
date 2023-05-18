@@ -21,6 +21,12 @@ void tof_callback(const std_msgs::Float64::ConstPtr& msg3)
   ROS_INFO("tof_data : [%lf] cm", msg3->data);
 }
 
+void robot_status_callback(const std_msgs::Int32::ConstPtr& msg)
+{
+  robot_status = msg->data;
+  ROS_INFO("robot_status : [%d] ", msg->data);
+}
+
 int main(int argc, char **argv)
 { 
   ros::init(argc, argv, "delivery");
@@ -31,14 +37,17 @@ int main(int argc, char **argv)
   ros::Publisher right_pub = nh.advertise<std_msgs::Float64>("right_data", 1000);
   ros::Subscriber tof_sub = nh.subscribe("tof_data", 1000, tof_callback);
   
+  ros::Subscriber robot_status_sub = nh.subscribe("robot_status_data", 1000, robot_status_callback);
+
+
   std_msgs::Float64 msg; // left_pub msg
   std_msgs::Float64 msg2; // right_pub msg
 
-  ros::Rate loop_rate(100); // 10Hz
+  ros::Rate loop_rate(100); // Hz
 
   while (ros::ok())
   {
-    robot_status = turn_left;
+    // robot_status = turn_left;
     
     switch (robot_status)
     {
@@ -54,12 +63,11 @@ int main(int argc, char **argv)
         right_pub.publish(msg2);
         loop_rate.sleep();
         break;
-      }
-        
+      }   
       
       case turn_left:
       {
-        for(double i=0 ;  i<T/2; i+=0.2){
+        for(double i=0 ;  i<T/2; i+=0.4){
           left_rpm = 185 * ( ( 1+cos(i* 2*PI / T) ) /2) + 70;
           right_rpm = 255;
           
@@ -73,7 +81,7 @@ int main(int argc, char **argv)
           loop_rate.sleep();
 
         }
-        for(double i=T/2 ;  i<3*T/2; i+=0.2){
+        for(double i=T/2 ;  i<3*T/2; i+=0.4){
           left_rpm = 70;
           right_rpm = 255;
           
@@ -87,7 +95,7 @@ int main(int argc, char **argv)
           loop_rate.sleep();
 
         }
-        for(double i=3*T/2 ;  i<=2*T; i+=0.2){
+        for(double i=3*T/2 ;  i<=2*T; i+=0.4){
           left_rpm = 185 * ( ( 1+cos(i* 2*PI / T) ) /2) + 70;
           right_rpm = 255;
           
@@ -103,13 +111,40 @@ int main(int argc, char **argv)
         }
         break;
       }
-        
 
       case turn_right:
       {
-        for(double j=0 ;  j<=T ; j++){
+        for(double j=0 ;  j<T/2; j+=0.4){
           left_rpm = 255;
-          right_rpm = 215 * ( ( 1+cos(j * 2*PI / T) ) /2) + 40;
+          right_rpm = 185 * ( ( 1+cos(j* 2*PI / T) ) /2) + 70;
+
+          ROS_INFO("turn_right");
+          ROS_INFO("left_rpm : %lf, right_rpm : %lf", left_rpm, right_rpm);
+
+          msg.data = left_rpm;
+          msg2.data = right_rpm;
+          left_pub.publish(msg); 
+          right_pub.publish(msg2);
+          loop_rate.sleep();
+
+        }
+        for(double j=T/2 ;  j<3*T/2; j+=0.4){
+          left_rpm = 255;
+          right_rpm = 70;
+
+          ROS_INFO("turn_right");
+          ROS_INFO("left_rpm : %lf, right_rpm : %lf", left_rpm, right_rpm);
+
+          msg.data = left_rpm;
+          msg2.data = right_rpm;
+          left_pub.publish(msg); 
+          right_pub.publish(msg2);
+          loop_rate.sleep();
+
+        }
+        for(double j=3*T/2 ;  j<=2*T; j+=0.4){
+          left_rpm = 255;
+          right_rpm = 185 * ( ( 1+cos(j* 2*PI / T) ) /2) + 70;
           
           ROS_INFO("turn_right");
           ROS_INFO("left_rpm : %lf, right_rpm : %lf", left_rpm, right_rpm);
@@ -119,8 +154,24 @@ int main(int argc, char **argv)
           left_pub.publish(msg); 
           right_pub.publish(msg2);
           loop_rate.sleep();
+
         }
         break;
+      }
+
+      default:
+      {
+        left_rpm = 0;
+        right_rpm = 0;
+        ROS_INFO("default");
+        ROS_INFO("left_rpm : %lf, right_rpm : %lf", left_rpm, right_rpm);
+        msg.data = left_rpm;
+        msg2.data = right_rpm;
+        left_pub.publish(msg); 
+        right_pub.publish(msg2);
+        loop_rate.sleep(); 
+
+        break;       
       }
     }
     
