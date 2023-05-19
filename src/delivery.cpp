@@ -48,6 +48,7 @@ int main(int argc, char **argv)
   while (ros::ok())
   {
     // robot_status = turn_left;
+    ros::spinOnce();
     
     switch (robot_status)
     {
@@ -174,9 +175,7 @@ int main(int argc, char **argv)
         break;       
       }
     }
-    
-    ros::spinOnce();
-    
+
   }
 
   return 0;
