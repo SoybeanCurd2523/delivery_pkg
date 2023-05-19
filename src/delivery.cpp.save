@@ -4,7 +4,6 @@
 #define deg2rad PI/180
 #define rad2deg 180/PI
 #define T 1000
-#define TT 100000
 
 YAML_CONFIG_READER XY_Coordinates_from_yaml; // 객체 선언
 
@@ -19,7 +18,7 @@ double right_rpm = 0;
 
 void tof_callback(const std_msgs::Float64::ConstPtr& msg3)
 {
- // ROS_INFO("tof_data : [%lf] cm", msg3->data);
+ //  ROS_INFO("tof_data : [%lf] cm", msg3->data);
 }
 
 void robot_status_callback(const std_msgs::Int32::ConstPtr& msg)
@@ -55,23 +54,18 @@ int main(int argc, char **argv)
     {
       case go_straight:
       {
-	for(int i=0 ; i< TT ; i++){
-        	left_rpm = 247;
-		right_rpm = 255;
-        	ROS_INFO("go_straight");
-		ROS_INFO("i : %d", i); 
-		// ROS_INFO("left_rpm : %lf, right_rpm : %lf", left_rpm, right_rpm);
+        left_rpm = right_rpm = 255;
+        ROS_INFO("go_straight");
+        ROS_INFO("left_rpm : %lf, right_rpm : %lf", left_rpm, right_rpm);
 
-        	msg.data = left_rpm;
-        	msg2.data = right_rpm;
-        	left_pub.publish(msg); 
-        	right_pub.publish(msg2);
-        	loop_rate.sleep();
+        msg.data = left_rpm;
+        msg2.data = right_rpm;
+        left_pub.publish(msg); 
+        right_pub.publish(msg2);
+        loop_rate.sleep();
+        break;
+      }   
       
-	}   
-	break;
-      }
-
       case turn_left:
       {
         for(double i=0 ;  i<T/2; i+=0.4){
