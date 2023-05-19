@@ -16,6 +16,8 @@
 #include <std_msgs/Float64.h>
 
 #define XY_COORDINATES_FILEPATH "/config/xy_coordinates.yaml"
+// const char* const XY_COORDINATES_FILEPATH = "/config/xy_coordinates.yaml";
+
 
 class YAML_CONFIG_READER
 {
