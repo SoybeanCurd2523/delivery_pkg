@@ -1,4 +1,5 @@
 #include "move_robot.h"
+
 // #include "read_yaml.h"
 
 int main(int argc, char **argv)
@@ -8,6 +9,7 @@ int main(int argc, char **argv)
   ros::NodeHandle nh;
 
   RobotController robot(nh);
+
   // YAML_CONFIG_READER XY_Coordinates_from_yaml; // 객체 선언
 
   bool flag = true;
@@ -15,7 +17,7 @@ int main(int argc, char **argv)
   while (ros::ok() && flag)
   {
     ros::spinOnce();
-
+  
     robot.goStraight();
     robot.turnLeft();
     robot.turnRight();

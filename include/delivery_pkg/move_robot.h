@@ -5,14 +5,25 @@
 #include <std_msgs/Int32.h>
 #include <std_msgs/Float64.h>
 
-#define MAX_RPM 255
-#define MIN_RPM 60
-
 #define PI 3.141592
 #define deg2rad PI/180
 #define rad2deg 180/PI
-#define T 1000
-#define TT 650 //100000
+
+#define LOOP_RATE 50
+#define MAX_RPM 255
+#define MIN_RPM 60
+
+#define STRAIGHT_CYCLE 650 //100000
+#define STRAIGHT_STEP 1
+#define STRAIGHT_LEFT_PRM 247
+
+#define CURVE_CYCLE 1000
+#define CURVE_CHANGE_STEP 1.2
+#define CURVE_DEFAULT_STEP 1.6
+
+#define DEFAULT_CYCLE 500
+#define DEFAULT_STEP 1
+#define DEFAULT_RPM 0
 
 enum{
   go_straight, turn_left, turn_right // 0:직진, 1:좌회전,  2:우회전
@@ -43,13 +54,15 @@ public:
     
     void tofCallback(const std_msgs::Float64::ConstPtr& msg3);
     void robotStatusCallback(const std_msgs::Int32::ConstPtr& msg); // 외부에서 로봇의 이동 명령 제어 가능
-
+  
     void goStraight();
     void turnLeft();
     void turnRight();
     void defaultAction();
 
     void rpmTopicPublisher();
+
+    void init();
 };
 
 #endif // MOVE_ROBOT_H
