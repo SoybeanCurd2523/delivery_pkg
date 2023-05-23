@@ -11,18 +11,18 @@
 
 #define LOOP_RATE 50
 #define MAX_RPM 255
-#define MIN_RPM 60
+#define MIN_RPM 70
 
 #define STRAIGHT_CYCLE 650 //100000
-#define STRAIGHT_STEP 1
+#define STRAIGHT_STEP 1 
 #define STRAIGHT_LEFT_PRM 247
 
 #define CURVE_CYCLE 1000
-#define CURVE_CHANGE_STEP 1.2
-#define CURVE_DEFAULT_STEP 1.6
+#define CURVE_CHANGE_STEP 2.5
+#define CURVE_DEFAULT_STEP 2.9
 
 #define DEFAULT_CYCLE 500
-#define DEFAULT_STEP 1
+#define DEFAULT_STEP 2
 #define DEFAULT_RPM 0
 
 enum{
@@ -55,7 +55,7 @@ public:
     void tofCallback(const std_msgs::Float64::ConstPtr& msg3);
     void robotStatusCallback(const std_msgs::Int32::ConstPtr& msg); // 외부에서 로봇의 이동 명령 제어 가능
   
-    void goStraight();
+    void goStraight(double);
     void turnLeft();
     void turnRight();
     void defaultAction();
