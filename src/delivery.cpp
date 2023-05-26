@@ -39,12 +39,12 @@ int main(int argc, char **argv)
 
     robot.defaultAction();
     robot.goStraight(668);
-    robot.turnLeft();
-    robot.turnRight();
-    robot.goStraight(280);
-    robot.turnRight();
-    robot.turnLeft();
-    robot.goStraight(271);
+    // robot.turnLeft();
+    // robot.turnRight();
+    // robot.goStraight(280);
+    // robot.turnRight();
+    // robot.turnLeft();
+    // robot.goStraight(271);
     robot.defaultAction();
 
     flag = false;
