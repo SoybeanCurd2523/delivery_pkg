@@ -1,55 +1,56 @@
 #include "move_robot.h"
 // #include "read_yaml.h"
 
+// Set control gains
+double Kp = 0.8;  // P gain 값
+double Kd = Kp*0.05; // D gain 값
+double maxOutput = 55;  // 최대 출력 값
+double minOutput = -55;    // 최소 출력 값
+
+double setpoint = 640.0;  // 목표값
+double current_value  = 0.0;  // 현재 값
+double control_signal = 0.0;
+
+float x_point_; // hough transform으로 검출한 교차점의 x 좌표
+
+void x_point_callback(const std_msgs::Float64::ConstPtr& msg)
+{ 
+  x_point_ = msg->data;
+  current_value = x_point_;
+  ROS_INFO("x_point_: %f", x_point_);
+}
+
 int main(int argc, char **argv)
 { 
   ros::init(argc, argv, "delivery");
 
   ros::NodeHandle nh;
 
+  ros::Subscriber x_dist_sub = nh.subscribe("x_point_data", 1000, x_point_callback);
   RobotController robot(nh);
+
+  PIDController pid(Kp, Kd, maxOutput, minOutput);
 
   // YAML_CONFIG_READER XY_Coordinates_from_yaml; // 객체 선언
 
-  bool flag = true;
+  // bool flag = true;
 
-  while (ros::ok() && flag)
+  while (ros::ok())
   {
     ros::spinOnce();
 
-// 실험1
-// # 1. 직진 418cm -> 368
-// # 2, 오른쪽으로 90도 회전
-// # 3. 직진 718cm -> 618
-// # 4. 왼쪽으로 90도 회전
-// # 5. 직진 89cm -> 39
+    control_signal = pid.calculate(setpoint, current_value);
 
-// 실험2
-// # 3. 직진 718cm // 668
-// # 4. 왼쪽으로 90도 회전
-// # 6. 오른쪽으로 회전
-// # 7. 직진 380cm // 280
-// # 8. 오른쪽으로 회전
-// # 10. 왼쪽으로 회전
-// # 11. 직진 321cm // 271
-// 문제점 : 로봇이 왼쪽으로 좀 휜다.
-// 그리고 양 바퀴 고정이 달라서, 좌회전과 우회전의 step을 다르게 해야겠다.
-// 배터리 풀충.
-// 왼쪽 모터 실리콘 재결합?
+    ROS_INFO("control_signal : %f", control_signal);
 
-    robot.defaultAction();
-    robot.goStraight(668);
-    // robot.turnLeft();
-    // robot.turnRight();
-    // robot.goStraight(280);
-    // robot.turnRight();
-    // robot.turnLeft();
-    // robot.goStraight(271);
-    robot.defaultAction();
+    // robot.defaultAction();
+    robot.goStraight(668, control_signal);
 
-    flag = false;
+    // robot.defaultAction();
 
-    if(flag) break;
+    // flag = false;
+
+    // if(flag) break;
 
   }
 

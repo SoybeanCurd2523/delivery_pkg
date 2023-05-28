@@ -55,7 +55,7 @@ public:
     void tofCallback(const std_msgs::Float64::ConstPtr& msg3);
     void robotStatusCallback(const std_msgs::Int32::ConstPtr& msg); // 외부에서 로봇의 이동 명령 제어 가능
   
-    void goStraight(double);
+    void goStraight(double, double);
     void turnLeft();
     void turnRight();
     void defaultAction();
@@ -63,6 +63,45 @@ public:
     void rpmTopicPublisher();
 
     void init();
+};
+
+class PIDController
+{
+public:
+    PIDController(double Kp, double Kd, double max, double min)
+        : Kp(Kp), Kd(Kd), max(max), min(min), pre_error(0) {}
+
+    double calculate(double setpoint, double pv)
+    {
+        // Calculate error
+        double error = setpoint - pv;
+
+        // Proportional term
+        double P = Kp * error;
+
+        // Derivative term
+        double derivative = (error - pre_error) * Kd;
+
+        // Calculate total output
+        double output = P + derivative;
+
+        // Restrict to max/min
+        if (output < min) output = min;
+        else if (output > max) output = max;
+        
+        // Save error to previous error
+        pre_error = error;
+
+        return output;
+    }
+
+private:
+    double Kp;
+    double Kd;
+    double max;
+    double min;
+    double pre_error;
+
 };
 
 #endif // MOVE_ROBOT_H

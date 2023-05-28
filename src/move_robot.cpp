@@ -25,19 +25,19 @@ void RobotController::robotStatusCallback(const std_msgs::Int32::ConstPtr& msg) 
 }
 
 
-void RobotController::goStraight(double distance){
+void RobotController::goStraight(double distance, double control_signal){
     robot_status = go_straight;
     
 
-    for(int i=0 ; i< STRAIGHT_CYCLE*distance/100 ; i+=STRAIGHT_STEP){
-        left_rpm = STRAIGHT_LEFT_PRM; // no 255
-        right_rpm = MAX_RPM;
-        ROS_INFO("go_straight");
-        ROS_INFO("i : %d", i); 
-
+    // for(int i=0 ; i< STRAIGHT_CYCLE*distance/100 ; i+=STRAIGHT_STEP){
+        left_rpm = 189 ; // no 255
+        right_rpm = 200 + control_signal;
+        // ROS_INFO("go_straight");
+        // ROS_INFO("i : %d", i); 
+        
         rpmTopicPublisher();
         loop_rate.sleep();
-    }
+    // }
 }
 
 void RobotController::turnLeft(){
