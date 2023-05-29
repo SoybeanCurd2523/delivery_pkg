@@ -65,10 +65,10 @@ public:
     void init();
 };
 
-class PIDController
+class PDController
 {
 public:
-    PIDController(double Kp, double Kd, double max, double min)
+    PDController(double Kp, double Kd, double max, double min)
         : Kp(Kp), Kd(Kd), max(max), min(min), pre_error(0) {}
 
     double calculate(double setpoint, double pv)

@@ -1,5 +1,5 @@
 #include "move_robot.h"
-// #include "read_yaml.h"
+#include "read_yaml.h"
 
 // Set control gains
 double Kp = 0.8;  // P gain 값
@@ -9,9 +9,11 @@ double minOutput = -55;    // 최소 출력 값
 
 double setpoint = 640.0;  // 목표값
 double current_value  = 0.0;  // 현재 값
-double control_signal = 0.0;
+double control_signal = 0.0; // PD control 결과 값
 
 float x_point_; // hough transform으로 검출한 교차점의 x 좌표
+
+char room[] = "room_512"; // x와 y 좌표를 yaml파일에서 가져오고 싶은 방 호수
 
 void x_point_callback(const std_msgs::Float64::ConstPtr& msg)
 { 
@@ -25,32 +27,24 @@ int main(int argc, char **argv)
   ros::init(argc, argv, "delivery");
 
   ros::NodeHandle nh;
-
   ros::Subscriber x_dist_sub = nh.subscribe("x_point_data", 1000, x_point_callback);
+
   RobotController robot(nh);
-
-  PIDController pid(Kp, Kd, maxOutput, minOutput);
-
-  // YAML_CONFIG_READER XY_Coordinates_from_yaml; // 객체 선언
-
-  // bool flag = true;
+  PDController pd(Kp, Kd, maxOutput, minOutput);
+  YAML_CONFIG_READER yaml;
+  
+  yaml.get_XY_Coordinates_From_yaml(room);
+  double x = yaml.get_x(room);
+  double y = yaml.get_y(room);
 
   while (ros::ok())
   {
     ros::spinOnce();
 
-    control_signal = pid.calculate(setpoint, current_value);
+    control_signal = pd.calculate(setpoint, current_value);
+    ROS_INFO("x : %lf, y : %lf", x, y);
 
-    ROS_INFO("control_signal : %f", control_signal);
-
-    // robot.defaultAction();
     robot.goStraight(668, control_signal);
-
-    // robot.defaultAction();
-
-    // flag = false;
-
-    // if(flag) break;
 
   }
 

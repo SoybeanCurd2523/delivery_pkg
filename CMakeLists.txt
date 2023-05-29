@@ -218,6 +218,7 @@ include_directories(
 # )
 
 add_executable(${PROJECT_NAME}_node src/delivery.cpp src/read_yaml.cpp src/move_robot.cpp)
+# add_executable(${PROJECT_NAME}_node src/delivery.cpp src/move_robot.cpp)
 add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS}) #.
 target_link_libraries(
   ${PROJECT_NAME}_node
