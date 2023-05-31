@@ -16,7 +16,7 @@
 
 #define STRAIGHT_CYCLE 749 // 650 //100000
 #define STRAIGHT_STEP 1 
-#define STRAIGHT_LEFT_PRM 204
+#define STRAIGHT_LEFT_PRM 206
 
 #define CURVE_CYCLE 1000
 #define CURVE_CHANGE_STEP 2.5
@@ -37,8 +37,11 @@ class PDController
 public:
     ros::NodeHandle nh_; // nh 아님. nh_임
     ros::Subscriber x_dist_sub;
+    ros::Publisher rpm_control_signal_pub;
+
     ros::Rate loop_rate;
     std_msgs::Float64 msg; // x_dist_sub msg
+    std_msgs::Float64 msg2; // control_signal_pub
 
     // Set control gains
     double Kp = 1.1;  // P gain 값
@@ -46,7 +49,7 @@ public:
     double max = 55;  // 최대 출력 값
     double min = -55;    // 최소 출력 값
 
-    double setpoint = 640.0;  // 목표값, 이미지 픽셀의 중심
+    double setpoint = 640.0;  // 목표값, 이미지 픽셀의 중심 640, 우측 통행 시 벽부터 왼쪽 바퀴 50cm 기준으로는 660 
     double current_value  = 0.0;  // 현재 값, hough transform으로 검출한 교차점의 x 좌표
     double control_signal = 0.0; // PD control 결과 값  
 

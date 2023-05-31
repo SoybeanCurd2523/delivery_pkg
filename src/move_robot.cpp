@@ -2,7 +2,8 @@
 
 PDController::PDController(ros::NodeHandle& nh) : nh_(nh), loop_rate(LOOP_RATE){
     
-    x_dist_sub = nh_.subscribe("x_point_data", 1000, &PDController::x_point_callback, this);
+    x_dist_sub = nh_.subscribe("x_point_data", 1000, &PDController::x_point_callback, this); // 허프변환을 통한 라인들의 교차점의 x좌표
+    rpm_control_signal_pub = nh_.advertise<std_msgs::Float64>("rpm_control_signal_data", 1000); // pd제어의 결과값이 더해진 우측 모터의 rpm
 }
 
 PDController::~PDController(){
@@ -34,6 +35,9 @@ double PDController::calculate(double setpoint, double pv){
     
     // Save error to previous error
     pre_error = error;
+
+    msg2.data = 200 + output;
+    rpm_control_signal_pub.publish(msg2);   
 
     return output;
 }
@@ -88,14 +92,12 @@ void RobotController::robotStatusCallback(const std_msgs::Int32::ConstPtr& msg) 
 void RobotController::goStraight(double distance){
     robot_status = go_straight;
 
-    // for(int i=0 ; i< STRAIGHT_CYCLE*distance/100 ; i+=STRAIGHT_STEP){
-    
-    while(s <= distance)
-    // while(1)
-    {
+    for(int i=0 ; i< STRAIGHT_CYCLE*distance/100 ; i+=STRAIGHT_STEP){
+    // while(1){
         ros::spinOnce();
-
         control_signal = calculate(setpoint, current_value);
+        // ROS_INFO("current value : %f", current_value);
+
         // ROS_INFO("control_signal : %lf", control_signal);
 
         left_rpm = STRAIGHT_LEFT_PRM ; // 204
@@ -105,30 +107,6 @@ void RobotController::goStraight(double distance){
 
         // ROS_INFO("go_straight");
         // ROS_INFO("i : %d", i); 
-        
-
-        /////// odometry /////////////
-        delta_s = (float)(left_encoder_diff + right_encoder_diff) / (float)2.0 * 0.118634 * dt;
-        s += delta_s;
-
-        // ROS_INFO("delta_s : %f", delta_s);
-
-        // delta_x = delta_s * cos(degree_rad);
-        // delta_y = delta_s * sin(degree_rad);
-
-        // x += delta_x;
-        // y += delta_y;
-
-        // ROS_INFO("degree_rad: %f", degree_rad);
-        // ROS_INFO("sin(degree_rad) : %f", sin(degree_rad));
-        // ROS_INFO("cos(degree_rad) : %f", cos(degree_rad));
-
-        // ROS_INFO("x: %f", x);
-        // ROS_INFO("y: %f", y);
-        ROS_INFO("s: %f", s);
-        ROS_INFO("================");
-        //////////////////////////////
-
 
         rpmTopicPublisher();
         loop_rate.sleep();
