@@ -12,6 +12,9 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
   roslib  
+  geometry_msgs
+  nav_msgs
+  tf
 )
 
 SET(SRC_FILES 

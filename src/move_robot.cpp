@@ -1,16 +1,77 @@
 #include "move_robot.h"
 
-RobotController::RobotController(ros::NodeHandle& nh) : nh_(nh), loop_rate(LOOP_RATE){
+PDController::PDController(ros::NodeHandle& nh) : nh_(nh), loop_rate(LOOP_RATE){
+    
+    x_dist_sub = nh_.subscribe("x_point_data", 1000, &PDController::x_point_callback, this);
+}
+
+PDController::~PDController(){
+
+}
+
+void PDController::x_point_callback(const std_msgs::Float64::ConstPtr& msg)
+{ 
+    current_value = msg->data;
+//   ROS_INFO("current_value: %lf", current_value);
+}
+
+double PDController::calculate(double setpoint, double pv){
+    // Calculate error
+    error = setpoint - pv;
+
+    // Proportional term
+    P = Kp * error;
+
+    // Derivative term
+    derivative = (error - pre_error) * Kd;
+
+    // Calculate total output
+    output = P + derivative;
+
+    // Restrict to max/min
+    if (output < min) output = min;
+    else if (output > max) output = max;
+    
+    // Save error to previous error
+    pre_error = error;
+
+    return output;
+}
+
+///////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////
+
+RobotController::RobotController(ros::NodeHandle& nh) : PDController(nh), nh_(nh), loop_rate(LOOP_RATE){
     robot_status = -1;
     left_pub = nh_.advertise<std_msgs::Float64>("left_data", 1000);
     right_pub = nh_.advertise<std_msgs::Float64>("right_data", 1000);
     tof_sub = nh_.subscribe("tof_data", 1000, &RobotController::tofCallback, this);
     robot_status_sub = nh_.subscribe("robot_status_data", 1000, &RobotController::robotStatusCallback, this);
-    
+
+    imu_sub = nh_.subscribe("/camera/imu", 1000, &RobotController::imuCallback, this);
+    left_encoder_sub = nh_.subscribe("left_encoder_diff_data", 1000, &RobotController::leftEncoderDiffCallback, this);
+    right_encoder_sub = nh_.subscribe("right_encoder_diff_data", 1000, &RobotController::rightEncoderDiffCallback, this);
 }
 
 RobotController::~RobotController(){
 
+}
+
+void RobotController::imuCallback(const sensor_msgs::Imu::ConstPtr& msg)
+{
+    th = msg->angular_velocity.y*cos(12/180*PI);
+    degree_rad = th * dt;
+    degree += degree_rad * 180.0 / M_PI / 2.0;
+}
+
+void RobotController::leftEncoderDiffCallback(const std_msgs::Float64::ConstPtr& msg4)
+{
+    left_encoder_diff = msg4->data;
+}
+
+void RobotController::rightEncoderDiffCallback(const std_msgs::Float64::ConstPtr& msg5)
+{
+    right_encoder_diff = msg5->data;
 }
 
 void RobotController::tofCallback(const std_msgs::Float64::ConstPtr& msg3)
@@ -24,20 +85,51 @@ void RobotController::robotStatusCallback(const std_msgs::Int32::ConstPtr& msg) 
   ROS_INFO("robot_status : [%d] ", msg->data);
 }
 
-
-void RobotController::goStraight(double distance, double control_signal){
+void RobotController::goStraight(double distance){
     robot_status = go_straight;
-    
 
     // for(int i=0 ; i< STRAIGHT_CYCLE*distance/100 ; i+=STRAIGHT_STEP){
-        left_rpm = 189 ; // no 255
+    
+    // while(x <= distance)
+    while(1)
+    {
+        ros::spinOnce();
+
+        control_signal = calculate(setpoint, current_value);
+        // ROS_INFO("control_signal : %lf", control_signal);
+
+        left_rpm = STRAIGHT_LEFT_PRM ; // 204
         right_rpm = 200 + control_signal;
+
+        ROS_INFO("right_rpm : %lf", right_rpm);
+
         // ROS_INFO("go_straight");
         // ROS_INFO("i : %d", i); 
         
+
+        /////// odometry /////////////
+        delta_s = (left_encoder_diff + right_encoder_diff) / 2.0 * 0.2519 * dt;
+        s += delta_s;
+
+        // ROS_INFO("delta_s : %f", delta_s);
+
+        delta_x = delta_s * cos(degree_rad);
+        delta_y = delta_s * sin(degree_rad);
+
+        x += delta_x;
+        y += delta_y;
+
+        // ROS_INFO("degree: %f", degree);
+        ROS_INFO("x: %f", x);
+        // ROS_INFO("y: %f", y);
+        // ROS_INFO("s: %f", s);
+        //////////////////////////////
+
+
         rpmTopicPublisher();
         loop_rate.sleep();
-    // }
+
+    }
 }
 
 void RobotController::turnLeft(){
@@ -121,6 +213,8 @@ void RobotController::turnRight(){
 
 void RobotController::defaultAction(){
     for(double i=0 ; i< DEFAULT_CYCLE; i+=DEFAULT_STEP){
+        ROS_INFO("i : %f", i);
+
         left_rpm = DEFAULT_RPM;
         right_rpm = DEFAULT_RPM;
         ROS_INFO("defaultAction");
@@ -137,3 +231,6 @@ void RobotController::rpmTopicPublisher( ){
     left_pub.publish(msg); 
     right_pub.publish(msg2);
 }
+
+
+
