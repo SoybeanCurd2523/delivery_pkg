@@ -22,10 +22,11 @@ int main(int argc, char **argv)
     // ros::spinOnce();
 
     robot.defaultAction();
-    // robot.goStraight(100);
 
+    robot.goStraight(500);
     // robot.turnLeft();
-    robot.turnRight();
+    // robot.goStraight(100);
+    // robot.turnRight();
  
     robot.defaultAction();
   }

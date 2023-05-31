@@ -10,7 +10,7 @@
 #define deg2rad PI/180
 #define rad2deg 180/PI
 
-#define LOOP_RATE 140 // Hz
+#define LOOP_RATE 100 // Hz
 #define MAX_RPM 200
 #define MIN_RPM 70
 
@@ -30,7 +30,7 @@ enum{
   go_straight, turn_left, turn_right // 0:직진, 1:좌회전,  2:우회전
 };
 
-#define DELTA_S_GAIN 0.2519
+// #define DELTA_S_GAIN 0.169756
 class PDController
 {
 // private:
@@ -91,14 +91,11 @@ public:
     double left_rpm; // ros topic data
     double right_rpm;
     
-    // float dt = 0.01; // 10ms
-    float dt = 0.007; // 14ms
+    float dt = 0.01; // 10ms
     double th, left_encoder_diff, right_encoder_diff;
     double prev_left_encoder_diff, prev_right_encoder_diff, prev_imu_th, degree, degree_rad;
     float delta_s, delta_x, delta_y;
     float x, y, s;
-
-    double init_degree_rad;
 
     RobotController(ros::NodeHandle& nh); 
     ~RobotController();
