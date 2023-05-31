@@ -4,18 +4,14 @@
 #include "ros/ros.h"
 #include <std_msgs/Int32.h>
 #include <std_msgs/Float64.h>
-
-#include <nav_msgs/Odometry.h>
 #include <sensor_msgs/Imu.h>
-#include <geometry_msgs/Twist.h>
-#include <tf/transform_broadcaster.h>
 
 #define PI 3.141592
 #define deg2rad PI/180
 #define rad2deg 180/PI
 
-#define LOOP_RATE 100 // Hz
-#define MAX_RPM 255
+#define LOOP_RATE 140 // Hz
+#define MAX_RPM 200
 #define MIN_RPM 70
 
 #define STRAIGHT_CYCLE 749 // 650 //100000
@@ -34,7 +30,7 @@ enum{
   go_straight, turn_left, turn_right // 0:직진, 1:좌회전,  2:우회전
 };
 
-
+#define DELTA_S_GAIN 0.2519
 class PDController
 {
 // private:
@@ -95,10 +91,14 @@ public:
     double left_rpm; // ros topic data
     double right_rpm;
     
-    double dt = 0.01; // 10ms
-    double x, y, th, s, left_encoder_diff, right_encoder_diff;
+    // float dt = 0.01; // 10ms
+    float dt = 0.007; // 14ms
+    double th, left_encoder_diff, right_encoder_diff;
     double prev_left_encoder_diff, prev_right_encoder_diff, prev_imu_th, degree, degree_rad;
-    double delta_s, delta_x, delta_y;
+    float delta_s, delta_x, delta_y;
+    float x, y, s;
+
+    double init_degree_rad;
 
     RobotController(ros::NodeHandle& nh); 
     ~RobotController();

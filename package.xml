@@ -27,10 +27,6 @@
   <exec_depend>roslib</exec_depend> 
   <!-- <exec_depend>read_yaml_pkg</exec_depend> -->
 
-  <depend>geometry_msgs</depend>
-  <depend>nav_msgs</depend>
-  <depend>tf</depend>
-
   <export>
     <!-- Other tools can request additional information be placed here -->
   </export>

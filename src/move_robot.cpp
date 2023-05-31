@@ -90,8 +90,8 @@ void RobotController::goStraight(double distance){
 
     // for(int i=0 ; i< STRAIGHT_CYCLE*distance/100 ; i+=STRAIGHT_STEP){
     
-    // while(x <= distance)
-    while(1)
+    while(x <= distance)
+    // while(1)
     {
         ros::spinOnce();
 
@@ -101,28 +101,32 @@ void RobotController::goStraight(double distance){
         left_rpm = STRAIGHT_LEFT_PRM ; // 204
         right_rpm = 200 + control_signal;
 
-        ROS_INFO("right_rpm : %lf", right_rpm);
+        // ROS_INFO("right_rpm : %lf", right_rpm);
 
         // ROS_INFO("go_straight");
         // ROS_INFO("i : %d", i); 
         
 
         /////// odometry /////////////
-        delta_s = (left_encoder_diff + right_encoder_diff) / 2.0 * 0.2519 * dt;
+        delta_s = (float)(left_encoder_diff + right_encoder_diff) / (float)2.0 * DELTA_S_GAIN * dt;
         s += delta_s;
 
         // ROS_INFO("delta_s : %f", delta_s);
 
         delta_x = delta_s * cos(degree_rad);
-        delta_y = delta_s * sin(degree_rad);
+        // delta_y = delta_s * sin(degree_rad);
 
         x += delta_x;
-        y += delta_y;
+        // y += delta_y;
 
-        // ROS_INFO("degree: %f", degree);
+        // ROS_INFO("degree_rad: %f", degree_rad);
+        // ROS_INFO("sin(degree_rad) : %f", sin(degree_rad));
+        // ROS_INFO("cos(degree_rad) : %f", cos(degree_rad));
+
         ROS_INFO("x: %f", x);
         // ROS_INFO("y: %f", y);
         // ROS_INFO("s: %f", s);
+        ROS_INFO("================");
         //////////////////////////////
 
 
@@ -130,12 +134,14 @@ void RobotController::goStraight(double distance){
         loop_rate.sleep();
 
     }
+    init_degree_rad = degree_rad;
 }
 
 void RobotController::turnLeft(){
     robot_status = turn_left;
 
-    for(double i=0 ; i<CURVE_CYCLE/2; i+=CURVE_CHANGE_STEP){
+    ROS_INFO("degree_rad : %f", degree_rad);
+    for( ; degree_rad ; i+=CURVE_CHANGE_STEP){
         left_rpm = (MAX_RPM - MIN_RPM) * ( ( 1+cos(i* 2*PI / CURVE_CYCLE) ) /2) + MIN_RPM;
         right_rpm = MAX_RPM;
 
@@ -169,28 +175,41 @@ void RobotController::turnLeft(){
         loop_rate.sleep();
 
     }
+    init_degree_rad = degree_rad;
 }
 
 void RobotController::turnRight(){
+    ros::spinOnce();
     robot_status = turn_right;
 
-    for(double i=0 ; i<CURVE_CYCLE/2; i+=CURVE_CHANGE_STEP){
-        left_rpm = MAX_RPM;
-        right_rpm = (MAX_RPM - MIN_RPM) * ( ( 1+cos(i* 2*PI / CURVE_CYCLE) ) /2) + MIN_RPM;
+    double drad;
+    init_degree_rad == degree_rad;
+    drad = degree_rad - init_degree_rad;
+    ROS_INFO("drad : %f", drad);
+    ROS_INFO("init_degree_rad : %f", init_degree_rad);
 
-        ROS_INFO("turn_right");
+    while(drad < PI/4){
+        ros::spinOnce();
+        drad =  degree_rad - init_degree_rad;
+        ROS_INFO("drad : %f", drad);
+        left_rpm = MAX_RPM; // 200
+        right_rpm = (MAX_RPM - MIN_RPM) * ( ( 1+cos(2 * drad) ) /2) + MIN_RPM; // 70?
+
+        // ROS_INFO("turn_right");
         ROS_INFO("left_rpm : %lf, right_rpm : %lf", left_rpm, right_rpm);
 
         rpmTopicPublisher();
         loop_rate.sleep();
-
     }
 
-    for(double i=CURVE_CYCLE/2 ; i<3*CURVE_CYCLE/2; i+=CURVE_DEFAULT_STEP){
+    while(drad >= PI/4 && drad < 3*PI/4){
+        ros::spinOnce();
+        drad =  degree_rad - init_degree_rad;
+        ROS_INFO("drad : %f", drad);
         left_rpm = MAX_RPM;
         right_rpm = MIN_RPM;
 
-        ROS_INFO("turn_right");
+        // ROS_INFO("turn_right");
         ROS_INFO("left_rpm : %lf, right_rpm : %lf", left_rpm, right_rpm);
 
         rpmTopicPublisher();
@@ -198,11 +217,12 @@ void RobotController::turnRight(){
 
     }
 
-    for(double i=3*CURVE_CYCLE/2 ; i<=2*CURVE_CYCLE; i+=CURVE_CHANGE_STEP){
+    while(drad = 3*PI/4 && drad < PI){
+        ros::spinOnce();
         left_rpm = MAX_RPM;
-        right_rpm = (MAX_RPM - MIN_RPM) * ( ( 1+cos(i* 2*PI / CURVE_CYCLE) ) /2) + MIN_RPM;
-        
-        ROS_INFO("turn_right");
+        right_rpm = (MAX_RPM - MIN_RPM) * ( ( 1+cos(2 * drad) ) /2) + MIN_RPM + 10;
+        ROS_INFO("drad : %f", drad);
+        // ROS_INFO("turn_right");
         ROS_INFO("left_rpm : %lf, right_rpm : %lf", left_rpm, right_rpm);
 
         rpmTopicPublisher();
