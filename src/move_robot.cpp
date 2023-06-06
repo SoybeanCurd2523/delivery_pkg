@@ -12,7 +12,7 @@ PDController::~PDController(){
 
 void PDController::x_point_callback(const std_msgs::Float64::ConstPtr& msg)
 { 
-    current_value = msg->data;
+    // current_value = msg->data;
 //   ROS_INFO("current_value: %lf", current_value);
 }
 
@@ -80,7 +80,8 @@ void RobotController::rightEncoderDiffCallback(const std_msgs::Float64::ConstPtr
 
 void RobotController::tofCallback(const std_msgs::Float64::ConstPtr& msg3)
 {
- // ROS_INFO("tof_data : [%lf] cm", msg3->data);
+    ROS_INFO("tof_data : [%lf] cm", msg3->data);
+    current_value = msg3->data;
 }
 
 void RobotController::robotStatusCallback(const std_msgs::Int32::ConstPtr& msg) // 외부에서 로봇의 이동 명령 제어 가능
@@ -92,15 +93,15 @@ void RobotController::robotStatusCallback(const std_msgs::Int32::ConstPtr& msg) 
 void RobotController::goStraight(double distance){
     robot_status = go_straight;
 
-    for(int i=0 ; i< STRAIGHT_CYCLE*distance/100 ; i+=STRAIGHT_STEP){
-    // while(1){
+    // for(int i=0 ; i< STRAIGHT_CYCLE*distance/100 ; i+=STRAIGHT_STEP){
+    while(1){
         ros::spinOnce();
         control_signal = calculate(setpoint, current_value);
         // ROS_INFO("current value : %f", current_value);
 
         // ROS_INFO("control_signal : %lf", control_signal);
 
-        left_rpm = STRAIGHT_LEFT_PRM ; // 204
+        left_rpm = 220; //STRAIGHT_LEFT_PRM ; // 204
         right_rpm = 200 + control_signal;
 
         ROS_INFO("right_rpm : %lf", right_rpm);
@@ -117,7 +118,7 @@ void RobotController::goStraight(double distance){
 void RobotController::turnLeft(){
     robot_status = turn_left;
 
-    for(double i=0 ; i<CURVE_CYCLE/2; i+=CURVE_CHANGE_STEP){
+    for(double i=0 ; i<CURVE_CYCLE/2; i+=CURVE_CHANGE_STEP_L){
         left_rpm = (MAX_RPM - MIN_RPM) * ( ( 1+cos(i* 2*PI / CURVE_CYCLE) ) /2) + MIN_RPM;
         right_rpm = MAX_RPM;
 
@@ -128,7 +129,7 @@ void RobotController::turnLeft(){
         loop_rate.sleep();
     }
 
-    for(double i=CURVE_CYCLE/2 ; i<3*CURVE_CYCLE/2; i+=CURVE_DEFAULT_STEP){
+    for(double i=CURVE_CYCLE/2 ; i<3*CURVE_CYCLE/2; i+=CURVE_DEFAULT_STEP_L){
         left_rpm = MIN_RPM;
         right_rpm = MAX_RPM;
         
@@ -140,7 +141,7 @@ void RobotController::turnLeft(){
 
     }
 
-    for(double i=3*CURVE_CYCLE/2 ; i<=2*CURVE_CYCLE; i+=CURVE_CHANGE_STEP){
+    for(double i=3*CURVE_CYCLE/2 ; i<=2*CURVE_CYCLE; i+=CURVE_CHANGE_STEP_L){
         left_rpm = (MAX_RPM - MIN_RPM) * ( ( 1+cos(i* 2*PI / CURVE_CYCLE) ) /2) + MIN_RPM;
         right_rpm = MAX_RPM;
         

@@ -18,9 +18,14 @@
 #define STRAIGHT_STEP 1 
 #define STRAIGHT_LEFT_PRM 206
 
-#define CURVE_CYCLE 1000
-#define CURVE_CHANGE_STEP 2.5
-#define CURVE_DEFAULT_STEP 2.9
+#define CURVE_CYCLE 1400
+///////////////////////// right
+#define CURVE_CHANGE_STEP 4
+#define CURVE_DEFAULT_STEP 0.5
+
+//////////////////////// left
+#define CURVE_CHANGE_STEP_L 4
+#define CURVE_DEFAULT_STEP_L 1
 
 #define DEFAULT_CYCLE 500
 #define DEFAULT_STEP 2
@@ -44,12 +49,12 @@ public:
     std_msgs::Float64 msg2; // control_signal_pub
 
     // Set control gains
-    double Kp = 1.1;  // P gain 값
-    double Kd = Kp*0.05; // D gain 값
-    double max = 55;  // 최대 출력 값
-    double min = -55;    // 최소 출력 값
+    double Kp = 3; //1.1;  // P gain 값
+    double Kd = 14; //Kp*1.0; //Kp*0.05; // D gain 값
+    double max = 55; //55;  // 최대 출력 값
+    double min = -55; //-55;    // 최소 출력 값
 
-    double setpoint = 640.0;  // 목표값, 이미지 픽셀의 중심 640, 우측 통행 시 벽부터 왼쪽 바퀴 50cm 기준으로는 660 
+    double setpoint = 25; //640.0;  // 목표값, 이미지 픽셀의 중심 640, 우측 통행 시 벽부터 왼쪽 바퀴 50cm 기준으로는 660 
     double current_value  = 0.0;  // 현재 값, hough transform으로 검출한 교차점의 x 좌표
     double control_signal = 0.0; // PD control 결과 값  
 
